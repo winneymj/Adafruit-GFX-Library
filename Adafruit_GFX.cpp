@@ -758,6 +758,8 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
                  h  = pgm_read_byte(&glyph->height);
         int8_t   xo = pgm_read_byte(&glyph->xOffset),
                  yo = pgm_read_byte(&glyph->yOffset);
+        int8_t   xa = pgm_read_byte(&glyph->xAdvance);
+
         uint8_t  xx, yy, bits = 0, bit = 0;
         int16_t  xo16 = 0, yo16 = 0;
 
@@ -798,11 +800,14 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
                           size, size, color);
                     }
                 } else if(bg != color) {
-                    if(size == 1) {
-                        writePixel(x+xo+xx, y+yo+yy, bg);
-                    } else {
-                        writeFillRect(x+(xo16+xx)*size, y+(yo16+yy)*size,
-                          size, size, bg);
+					// Only write pixels inside the xadvance as this is the true width of the font.
+					if (xx < xa) {
+						if(size == 1) {
+							writePixel(x+xo+xx, y+yo+yy, bg);
+						} else {
+							writeFillRect(x+(xo16+xx)*size, y+(yo16+yy)*size,
+							  size, size, bg);
+						}
 					}
                 }
                 bits <<= 1;
